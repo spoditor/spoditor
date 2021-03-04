@@ -1,0 +1,20 @@
+# permissions for end users to view argumentors.
+apiVersion: rbac.authorization.k8s.io/v1
+kind: ClusterRole
+metadata:
+  name: argumentor-viewer-role
+rules:
+- apiGroups:
+  - argumentor.ssarg.io
+  resources:
+  - argumentors
+  verbs:
+  - get
+  - list
+  - watch
+- apiGroups:
+  - argumentor.ssarg.io
+  resources:
+  - argumentors/status
+  verbs:
+  - get
