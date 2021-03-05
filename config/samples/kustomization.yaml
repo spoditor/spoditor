@@ -1,4 +1,0 @@
-## Append samples you want in your CSV to this file as resources ##
-resources:
-- argumentor_v1beta1_argumentor.yaml
-# +kubebuilder:scaffold:manifestskustomizesamples

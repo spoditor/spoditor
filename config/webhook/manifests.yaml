@@ -13,29 +13,8 @@ webhooks:
     service:
       name: webhook-service
       namespace: system
-      path: /mutate-argumentor-ssarg-io-v1beta1-argumentor
-  failurePolicy: Fail
-  name: margumentor.kb.io
-  rules:
-  - apiGroups:
-    - argumentor.ssarg.io
-    apiVersions:
-    - v1beta1
-    operations:
-    - CREATE
-    - UPDATE
-    resources:
-    - argumentors
-  sideEffects: None
-- admissionReviewVersions:
-  - v1
-  - v1beta1
-  clientConfig:
-    service:
-      name: webhook-service
-      namespace: system
       path: /mutate-v1-pod
-  failurePolicy: Fail
+  failurePolicy: Ignore
   name: mpod.ssarg.io
   rules:
   - apiGroups:

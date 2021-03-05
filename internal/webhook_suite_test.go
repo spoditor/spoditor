@@ -27,6 +27,8 @@ import (
 
 	. "github.com/onsi/ginkgo"
 	. "github.com/onsi/gomega"
+	"github.com/simingweng/ss-argumentor/internal/annotation"
+	"github.com/simingweng/ss-argumentor/internal/annotation/configmap"
 
 	admissionv1beta1 "k8s.io/api/admission/v1beta1"
 	// +kubebuilder:scaffold:imports
@@ -65,7 +67,7 @@ var _ = BeforeSuite(func() {
 	By("bootstrapping test environment")
 	testEnv = &envtest.Environment{
 		WebhookInstallOptions: envtest.WebhookInstallOptions{
-			Paths: []string{filepath.Join("..", "..", "config", "webhook")},
+			Paths: []string{filepath.Join("..", "config", "webhook")},
 		},
 	}
 
@@ -95,7 +97,12 @@ var _ = BeforeSuite(func() {
 	})
 	Expect(err).NotTo(HaveOccurred())
 
-	(&PodArgumentor{}).SetupWebhookWithManager(mgr)
+	podArgumentor := PodArgumentor{
+		SSPodId:   &LabelSSPodIdentifier{},
+		Collector: annotation.NewCollector(),
+	}
+	podArgumentor.Register(&configmap.MountHandler{})
+	podArgumentor.SetupWebhookWithManager(mgr)
 	Expect(err).NotTo(HaveOccurred())
 
 	// +kubebuilder:scaffold:webhook

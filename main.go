@@ -20,6 +20,10 @@ import (
 	"flag"
 	"os"
 
+	"github.com/simingweng/ss-argumentor/internal"
+	"github.com/simingweng/ss-argumentor/internal/annotation"
+	"github.com/simingweng/ss-argumentor/internal/annotation/configmap"
+
 	// Import all Kubernetes client auth plugins (e.g. Azure, GCP, OIDC, etc.)
 	// to ensure that exec-entrypoint and run can make use of them.
 	_ "k8s.io/client-go/plugin/pkg/client/auth"
@@ -30,8 +34,6 @@ import (
 	ctrl "sigs.k8s.io/controller-runtime"
 	"sigs.k8s.io/controller-runtime/pkg/healthz"
 	"sigs.k8s.io/controller-runtime/pkg/log/zap"
-
-	argumentorv1beta1 "github.com/simingweng/ss-argumentor/api/v1beta1"
 	// +kubebuilder:scaffold:imports
 )
 
@@ -43,7 +45,6 @@ var (
 func init() {
 	utilruntime.Must(clientgoscheme.AddToScheme(scheme))
 
-	utilruntime.Must(argumentorv1beta1.AddToScheme(scheme))
 	// +kubebuilder:scaffold:scheme
 }
 
@@ -77,11 +78,14 @@ func main() {
 		os.Exit(1)
 	}
 
-	if err = (&argumentorv1beta1.Argumentor{}).SetupWebhookWithManager(mgr); err != nil {
-		setupLog.Error(err, "unable to create webhook", "webhook", "Argumentor")
-		os.Exit(1)
-	}
 	// +kubebuilder:scaffold:builder
+
+	podArgumentor := internal.PodArgumentor{
+		SSPodId:   &internal.LabelSSPodIdentifier{},
+		Collector: annotation.NewCollector(),
+	}
+	podArgumentor.Register(&configmap.MountHandler{})
+	podArgumentor.SetupWebhookWithManager(mgr)
 
 	if err := mgr.AddHealthzCheck("health", healthz.Ping); err != nil {
 		setupLog.Error(err, "unable to set up health check")
