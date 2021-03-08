@@ -99,7 +99,7 @@ var _ = BeforeSuite(func() {
 
 	podArgumentor := PodArgumentor{
 		SSPodId:   &LabelSSPodIdentifier{},
-		Collector: annotation.NewCollector(),
+		Collector: annotation.Collector,
 	}
 	podArgumentor.Register(&configmap.MountHandler{})
 	podArgumentor.SetupWebhookWithManager(mgr)

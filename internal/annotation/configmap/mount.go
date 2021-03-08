@@ -34,7 +34,7 @@ func (h *MountHandler) Mutate(spec *corev1.PodSpec, ordinal int, cfg interface{}
 	return nil
 }
 
-func (h *MountHandler) NewParser() annotation.Parser {
+func (h *MountHandler) GetParser() annotation.Parser {
 	return parser
 }
 

@@ -82,7 +82,7 @@ func main() {
 
 	podArgumentor := internal.PodArgumentor{
 		SSPodId:   &internal.LabelSSPodIdentifier{},
-		Collector: annotation.NewCollector(),
+		Collector: annotation.Collector,
 	}
 	podArgumentor.Register(&configmap.MountHandler{})
 	podArgumentor.SetupWebhookWithManager(mgr)

@@ -7,9 +7,14 @@ import (
 	metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
 )
 
+const (
+	Prefix    = "ssarg.io/"
+	Separator = "_"
+)
+
 type Handler interface {
 	Mutate(spec *corev1.PodSpec, ordinal int, cfg interface{}) error
-	NewParser() Parser
+	GetParser() Parser
 }
 
 type Parser interface {
@@ -31,12 +36,14 @@ func (c CollectorFunc) Collect(accessor metav1.ObjectMetaAccessor) map[Qualified
 	return c(accessor)
 }
 
+var Collector QualifiedAnnotationCollector = defaultCollector
+
 var defaultCollector CollectorFunc = func(accessor metav1.ObjectMetaAccessor) map[QualifiedName]string {
 	m := map[QualifiedName]string{}
 	for k, v := range accessor.GetObjectMeta().GetAnnotations() {
-		if strings.HasPrefix(k, "ssarg.io") {
-			n := strings.TrimPrefix(k, "ssarg.io/")
-			i := strings.LastIndex(n, "_")
+		if strings.HasPrefix(k, Prefix) {
+			n := strings.TrimPrefix(k, Prefix)
+			i := strings.LastIndex(n, Separator)
 			if i == -1 {
 				m[QualifiedName{Name: n}] = v
 			} else {
@@ -48,8 +55,4 @@ var defaultCollector CollectorFunc = func(accessor metav1.ObjectMetaAccessor) ma
 		}
 	}
 	return m
-}
-
-func NewCollector() CollectorFunc {
-	return defaultCollector
 }

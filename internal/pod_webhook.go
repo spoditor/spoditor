@@ -40,7 +40,7 @@ func (r *PodArgumentor) Handle(c context.Context, request admission.Request) adm
 	}
 
 	for _, h := range r.handlers {
-		c, err := h.NewParser().Parse(r.Collector.Collect(pod))
+		c, err := h.GetParser().Parse(r.Collector.Collect(pod))
 		if err != nil {
 			return admission.Errored(http.StatusInternalServerError, err)
 		}

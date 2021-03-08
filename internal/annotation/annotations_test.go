@@ -13,13 +13,13 @@ func TestCollectorFunc_Collect(t *testing.T) {
 	}
 	tests := []struct {
 		name string
-		c    CollectorFunc
+		c    QualifiedAnnotationCollector
 		args args
 		want map[QualifiedName]string
 	}{
 		{
 			name: "success",
-			c:    NewCollector(),
+			c:    Collector,
 			args: args{accessor: &v1.ObjectMeta{
 				Annotations: map[string]string{
 					"ssarg.io/mount-configmap":     "dummy value",
