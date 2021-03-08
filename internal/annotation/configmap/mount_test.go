@@ -19,15 +19,107 @@ func TestMountHandler_Mutate(t *testing.T) {
 	tests := []struct {
 		name    string
 		args    args
+		want    *v1.PodSpec
 		wantErr bool
 	}{
-		// TODO: Add test cases.
+		{
+			name: "wrong config type",
+			args: args{
+				spec:    nil,
+				ordinal: 0,
+				cfg:     nil,
+			},
+			want:    nil,
+			wantErr: true,
+		},
+		{
+			name: "do nothing because ordinal doesn't qualify",
+			args: args{
+				spec:    &v1.PodSpec{},
+				ordinal: 0,
+				cfg: &mountConfig{
+					qualifier: "1-2",
+					cfg:       nil,
+				},
+			},
+			want:    &v1.PodSpec{},
+			wantErr: false,
+		},
+		{
+			name: "mount configmap as volume",
+			args: args{
+				spec: &v1.PodSpec{
+					Containers: []v1.Container{
+						{
+							Name: "main-container",
+						},
+					},
+				},
+				ordinal: 0,
+				cfg: &mountConfig{
+					qualifier: "",
+					cfg: &mountConfigValue{
+						Volumes: []v1.Volume{
+							{
+								Name: "my-config",
+								VolumeSource: v1.VolumeSource{
+									ConfigMap: &v1.ConfigMapVolumeSource{
+										LocalObjectReference: v1.LocalObjectReference{
+											Name: "my-configmap",
+										},
+									},
+								},
+							},
+						},
+						Containers: []v1.Container{
+							{
+								Name: "main-container",
+								VolumeMounts: []v1.VolumeMount{
+									{
+										Name:      "my-config",
+										MountPath: "/etc/my-config",
+									},
+								},
+							},
+						},
+					},
+				},
+			},
+			want: &v1.PodSpec{
+				Containers: []v1.Container{
+					{
+						Name: "main-container",
+						VolumeMounts: []v1.VolumeMount{
+							{
+								Name:      "my-config",
+								MountPath: "/etc/my-config",
+							},
+						},
+					},
+				},
+				Volumes: []v1.Volume{
+					{
+						Name: "my-config",
+						VolumeSource: v1.VolumeSource{
+							ConfigMap: &v1.ConfigMapVolumeSource{
+								LocalObjectReference: v1.LocalObjectReference{
+									Name: "my-configmap-0",
+								},
+							},
+						},
+					},
+				},
+			},
+			wantErr: false,
+		},
 	}
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
 			h := &MountHandler{}
 			if err := h.Mutate(tt.args.spec, tt.args.ordinal, tt.args.cfg); (err != nil) != tt.wantErr {
 				t.Errorf("Mutate() error = %v, wantErr %v", err, tt.wantErr)
+			} else if !reflect.DeepEqual(tt.args.spec, tt.want) {
+				t.Errorf("Mutate() = %v, want %v", tt.args.spec, tt.want)
 			}
 		})
 	}
@@ -93,6 +185,45 @@ func Test_parserFunc_Parse(t *testing.T) {
 				}(),
 			}},
 			want:    c,
+			wantErr: false,
+		},
+		{
+			name: "explicit json",
+			p:    parser,
+			args: args{annotations: map[annotation.QualifiedName]string{
+				annotation.QualifiedName{
+					Qualifier: "1-2",
+					Name:      MountConfigMaps,
+				}: "{\"Volumes\":[{\"name\": \"my-volume\", \"configMap\":{\"name\":\"my-configmap\"}}],\"Containers\":[{\"name\":\"nginx\", \"volumeMounts\":[{\"name\":\"my-volume\",\"mountPath\":\"/etc/configmaps/my-volume\"}]}]}",
+			}},
+			want: &mountConfig{
+				qualifier: "1-2",
+				cfg: &mountConfigValue{
+					Volumes: []v1.Volume{
+						{
+							Name: "my-volume",
+							VolumeSource: v1.VolumeSource{
+								ConfigMap: &v1.ConfigMapVolumeSource{
+									LocalObjectReference: v1.LocalObjectReference{
+										Name: "my-configmap",
+									},
+								},
+							},
+						},
+					},
+					Containers: []v1.Container{
+						{
+							Name: "nginx",
+							VolumeMounts: []v1.VolumeMount{
+								{
+									Name:      "my-volume",
+									MountPath: "/etc/configmaps/my-volume",
+								},
+							},
+						},
+					},
+				},
+			},
 			wantErr: false,
 		},
 	}

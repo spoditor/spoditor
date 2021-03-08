@@ -1,6 +1,8 @@
 package annotation
 
 import (
+	"regexp"
+	"strconv"
 	"strings"
 
 	corev1 "k8s.io/api/core/v1"
@@ -55,4 +57,19 @@ var defaultCollector CollectorFunc = func(accessor metav1.ObjectMetaAccessor) ma
 		}
 	}
 	return m
+}
+
+type PodQualifier func(int, string) bool
+
+var CommonPodQualifier PodQualifier = func(ordinal int, q string) bool {
+	if q == "" {
+		return true
+	}
+	if b, err := regexp.MatchString("\\d-\\d", q); err != nil || !b {
+		return false
+	}
+	bounds := strings.Split(q, "-")
+	min, _ := strconv.Atoi(bounds[0])
+	max, _ := strconv.Atoi(bounds[1])
+	return ordinal >= min && ordinal <= max
 }

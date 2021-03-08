@@ -1,14 +1,20 @@
 package configmap
 
 import (
+	"fmt"
+	"strconv"
+
 	"github.com/simingweng/ss-argumentor/internal/annotation"
 	corev1 "k8s.io/api/core/v1"
 	"k8s.io/apimachinery/pkg/util/json"
+	logf "sigs.k8s.io/controller-runtime/pkg/log"
 )
 
 const (
 	MountConfigMaps = "mount-configmap"
 )
+
+var mountCfgMapLog = logf.Log.WithName("mount_configmap")
 
 type mountConfig struct {
 	qualifier string
@@ -30,7 +36,25 @@ type MountHandler struct {
 }
 
 func (h *MountHandler) Mutate(spec *corev1.PodSpec, ordinal int, cfg interface{}) error {
-	_ = cfg.(*mountConfig)
+	m, ok := cfg.(*mountConfig)
+	if !ok {
+		return fmt.Errorf("unexpected config type %T", m)
+	}
+	if should(ordinal, m.qualifier) {
+		for _, v := range m.cfg.Volumes {
+			v.ConfigMap.LocalObjectReference.Name += "-" + strconv.Itoa(ordinal)
+		}
+		spec.Volumes = append(spec.Volumes, m.cfg.Volumes...)
+		for _, source := range m.cfg.Containers {
+			for i := 0; i < len(spec.Containers); i++ {
+				if source.Name == spec.Containers[i].Name {
+					spec.Containers[i].VolumeMounts = append(spec.Containers[i].VolumeMounts, source.VolumeMounts...)
+				}
+			}
+		}
+	} else {
+		mountCfgMapLog.Info("qualifier excludes this pod")
+	}
 	return nil
 }
 
@@ -54,3 +78,5 @@ var parser parserFunc = func(annotations map[annotation.QualifiedName]string) (i
 	}
 	return nil, nil
 }
+
+var should = annotation.CommonPodQualifier

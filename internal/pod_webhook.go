@@ -15,8 +15,8 @@ import (
 
 // +kubebuilder:webhook:path=/mutate-v1-pod,mutating=true,failurePolicy=ignore,sideEffects=None,groups="",resources=pods,verbs=create;update,versions=v1,name=mpod.ssarg.io,admissionReviewVersions={v1,v1beta1}
 
-// log is for logging in this package.
-var argumentorlog = logf.Log.WithName("pod-argumentor")
+// podWebhookLog is for logging in this package.
+var podWebhookLog = logf.Log.WithName("pod_webhook")
 
 type PodArgumentor struct {
 	decoder   *admission.Decoder
@@ -33,10 +33,10 @@ func (r *PodArgumentor) Handle(c context.Context, request admission.Request) adm
 	}
 
 	// mutate the fields in pod
-	argumentorlog.Info("received request for pod", "pod", pod)
+	podWebhookLog.Info("received request for pod", "pod", pod)
 	_, ordinal, err := r.SSPodId.Extract(pod)
 	if err != nil {
-		return admission.Errored(http.StatusInternalServerError, err)
+		return admission.Allowed("ignore none-statefulset pod")
 	}
 
 	for _, h := range r.handlers {
@@ -63,7 +63,7 @@ func (r *PodArgumentor) InjectDecoder(decoder *admission.Decoder) error {
 }
 
 func (r *PodArgumentor) SetupWebhookWithManager(mgr ctrl.Manager) {
-	argumentorlog.Info("registering argumentor webhook")
+	podWebhookLog.Info("registering argumentor webhook")
 	mgr.GetWebhookServer().
 		Register("/mutate-v1-pod", &webhook.Admission{
 			Handler: r,

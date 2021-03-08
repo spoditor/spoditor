@@ -45,3 +45,59 @@ func TestCollectorFunc_Collect(t *testing.T) {
 		})
 	}
 }
+
+func TestPodQualifier(t *testing.T) {
+	type args struct {
+		ordinal int
+		q       string
+	}
+	tests := []struct {
+		name string
+		q    PodQualifier
+		args args
+		want bool
+	}{
+		{
+			name: "apply all qualifier",
+			q:    CommonPodQualifier,
+			args: args{
+				ordinal: 0,
+			},
+			want: true,
+		},
+		{
+			name: "unexpected qualifier",
+			q:    CommonPodQualifier,
+			args: args{
+				ordinal: 0,
+				q:       "not even a qualifier",
+			},
+			want: false,
+		},
+		{
+			name: "common pod qualifier excluded",
+			q:    CommonPodQualifier,
+			args: args{
+				ordinal: 0,
+				q:       "1-2",
+			},
+			want: false,
+		},
+		{
+			name: "applicable",
+			q:    CommonPodQualifier,
+			args: args{
+				ordinal: 0,
+				q:       "0-1",
+			},
+			want: true,
+		},
+	}
+	for _, test := range tests {
+		t.Run(test.name, func(t *testing.T) {
+			if got := test.q(test.args.ordinal, test.args.q); got != test.want {
+				t.Errorf("PodQualifier() = %v, want %v", got, test.want)
+			}
+		})
+	}
+}
