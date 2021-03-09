@@ -2,7 +2,7 @@ package internal
 
 import (
 	"context"
-	"net/http"
+	"fmt"
 
 	"github.com/simingweng/ss-argumentor/internal/annotation"
 	v1 "k8s.io/api/core/v1"
@@ -29,30 +29,30 @@ func (r *PodArgumentor) Handle(c context.Context, request admission.Request) adm
 	pod := &v1.Pod{}
 	err := r.decoder.Decode(request, pod)
 	if err != nil {
-		return admission.Errored(http.StatusBadRequest, err)
+		return admission.Allowed(fmt.Sprintf("failed to decode the input pod %v", err))
 	}
 
 	// mutate the fields in pod
 	podWebhookLog.Info("received request for pod", "pod", pod)
 	_, ordinal, err := r.SSPodId.Extract(pod)
 	if err != nil {
-		return admission.Allowed("ignore none-statefulset pod")
+		return admission.Allowed(fmt.Sprintf("ignore none-statefulset pod %v", err))
 	}
 
 	for _, h := range r.handlers {
 		c, err := h.GetParser().Parse(r.Collector.Collect(pod))
-		if err != nil {
-			return admission.Errored(http.StatusInternalServerError, err)
+		if err != nil || c == nil {
+			return admission.Allowed(fmt.Sprintf("can't parse ssarg annotation %v", err))
 		}
 		err = h.Mutate(&pod.Spec, ordinal, c)
 		if err != nil {
-			return admission.Errored(http.StatusInternalServerError, err)
+			return admission.Allowed(fmt.Sprintf("failed to mutate the pod %v", err))
 		}
 	}
 
 	marshaledPod, err := json.Marshal(pod)
 	if err != nil {
-		return admission.Errored(http.StatusInternalServerError, err)
+		return admission.Allowed(fmt.Sprintf("failed to marshal the mutated pod %v", err))
 	}
 	return admission.PatchResponseFromRaw(request.Object.Raw, marshaledPod)
 }
