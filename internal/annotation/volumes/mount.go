@@ -11,7 +11,7 @@ import (
 )
 
 const (
-	MountConfigMaps = "mount-volume"
+	MountVolume = "mount-volume"
 )
 
 var mountCfgMapLog = logf.Log.WithName("mount_volume")
@@ -69,7 +69,7 @@ func (h *MountHandler) GetParser() annotation.Parser {
 
 var parser parserFunc = func(annotations map[annotation.QualifiedName]string) (interface{}, error) {
 	for k, v := range annotations {
-		if k.Name == MountConfigMaps {
+		if k.Name == MountVolume {
 			c := &mountConfigValue{}
 			if err := json.Unmarshal([]byte(v), c); err == nil {
 				return &mountConfig{

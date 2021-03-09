@@ -240,7 +240,7 @@ func Test_parserFunc_Parse(t *testing.T) {
 			args: args{annotations: map[annotation.QualifiedName]string{
 				annotation.QualifiedName{
 					Qualifier: "1-2",
-					Name:      MountConfigMaps,
+					Name:      MountVolume,
 				}: func() string {
 					b, _ := json.Marshal(c.cfg)
 					fmt.Println(string(b))
@@ -256,7 +256,7 @@ func Test_parserFunc_Parse(t *testing.T) {
 			args: args{annotations: map[annotation.QualifiedName]string{
 				annotation.QualifiedName{
 					Qualifier: "1-2",
-					Name:      MountConfigMaps,
+					Name:      MountVolume,
 				}: "{\"Volumes\":[{\"name\": \"my-volume\", \"configMap\":{\"name\":\"my-configmap\"}}],\"Containers\":[{\"name\":\"nginx\", \"volumeMounts\":[{\"name\":\"my-volume\",\"mountPath\":\"/etc/configmaps/my-volume\"}]}]}",
 			}},
 			want: &mountConfig{
