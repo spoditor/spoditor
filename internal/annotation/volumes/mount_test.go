@@ -1,4 +1,4 @@
-package configmap
+package volumes
 
 import (
 	"fmt"
@@ -105,6 +105,69 @@ func TestMountHandler_Mutate(t *testing.T) {
 								LocalObjectReference: v1.LocalObjectReference{
 									Name: "my-configmap-0",
 								},
+							},
+						},
+					},
+				},
+			},
+			wantErr: false,
+		},
+		{
+			name: "mount secret as volume",
+			args: args{
+				spec: &v1.PodSpec{
+					Containers: []v1.Container{
+						{
+							Name: "main-container",
+						},
+					},
+				},
+				ordinal: 0,
+				cfg: &mountConfig{
+					qualifier: "",
+					cfg: &mountConfigValue{
+						Volumes: []v1.Volume{
+							{
+								Name: "my-secret",
+								VolumeSource: v1.VolumeSource{
+									Secret: &v1.SecretVolumeSource{
+										SecretName: "my-secret",
+									},
+								},
+							},
+						},
+						Containers: []v1.Container{
+							{
+								Name: "main-container",
+								VolumeMounts: []v1.VolumeMount{
+									{
+										Name:      "my-secret",
+										MountPath: "/etc/my-secret",
+									},
+								},
+							},
+						},
+					},
+				},
+			},
+			want: &v1.PodSpec{
+				Containers: []v1.Container{
+					{
+						Name: "main-container",
+						VolumeMounts: []v1.VolumeMount{
+							{
+								Name:      "my-secret",
+								MountPath: "/etc/my-secret",
+							},
+						},
+					},
+				},
+				Volumes: []v1.Volume{
+					{
+						Name: "my-secret",
+						VolumeSource: v1.VolumeSource{
+							Secret: &v1.SecretVolumeSource{
+								SecretName: "my-secret-0",
 							},
 						},
 					},

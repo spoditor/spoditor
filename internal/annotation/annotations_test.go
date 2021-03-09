@@ -22,17 +22,17 @@ func TestCollectorFunc_Collect(t *testing.T) {
 			c:    Collector,
 			args: args{accessor: &v1.ObjectMeta{
 				Annotations: map[string]string{
-					"ssarg.io/mount-configmap":     "dummy value",
-					"ssarg.io/mount-configmap_1-2": "dummy value",
+					"ssarg.io/mount-volume":     "dummy value",
+					"ssarg.io/mount-volume_1-2": "dummy value",
 				},
 			}},
 			want: map[QualifiedName]string{
 				QualifiedName{
-					Name: "mount-configmap",
+					Name: "mount-volume",
 				}: "dummy value",
 				QualifiedName{
 					Qualifier: "1-2",
-					Name:      "mount-configmap",
+					Name:      "mount-volume",
 				}: "dummy value",
 			},
 		},

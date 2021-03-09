@@ -28,7 +28,7 @@ import (
 	. "github.com/onsi/ginkgo"
 	. "github.com/onsi/gomega"
 	"github.com/simingweng/ss-argumentor/internal/annotation"
-	"github.com/simingweng/ss-argumentor/internal/annotation/configmap"
+	"github.com/simingweng/ss-argumentor/internal/annotation/volumes"
 
 	admissionv1beta1 "k8s.io/api/admission/v1beta1"
 	// +kubebuilder:scaffold:imports
@@ -101,7 +101,7 @@ var _ = BeforeSuite(func() {
 		SSPodId:   &LabelSSPodIdentifier{},
 		Collector: annotation.Collector,
 	}
-	podArgumentor.Register(&configmap.MountHandler{})
+	podArgumentor.Register(&volumes.MountHandler{})
 	podArgumentor.SetupWebhookWithManager(mgr)
 	Expect(err).NotTo(HaveOccurred())
 

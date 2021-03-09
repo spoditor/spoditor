@@ -22,7 +22,7 @@ import (
 
 	"github.com/simingweng/ss-argumentor/internal"
 	"github.com/simingweng/ss-argumentor/internal/annotation"
-	"github.com/simingweng/ss-argumentor/internal/annotation/configmap"
+	"github.com/simingweng/ss-argumentor/internal/annotation/volumes"
 
 	// Import all Kubernetes client auth plugins (e.g. Azure, GCP, OIDC, etc.)
 	// to ensure that exec-entrypoint and run can make use of them.
@@ -84,7 +84,7 @@ func main() {
 		SSPodId:   &internal.LabelSSPodIdentifier{},
 		Collector: annotation.Collector,
 	}
-	podArgumentor.Register(&configmap.MountHandler{})
+	podArgumentor.Register(&volumes.MountHandler{})
 	podArgumentor.SetupWebhookWithManager(mgr)
 
 	if err := mgr.AddHealthzCheck("health", healthz.Ping); err != nil {

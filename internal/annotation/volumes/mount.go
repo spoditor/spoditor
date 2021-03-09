@@ -1,4 +1,4 @@
-package configmap
+package volumes
 
 import (
 	"fmt"
@@ -11,10 +11,10 @@ import (
 )
 
 const (
-	MountConfigMaps = "mount-configmap"
+	MountConfigMaps = "mount-volume"
 )
 
-var mountCfgMapLog = logf.Log.WithName("mount_configmap")
+var mountCfgMapLog = logf.Log.WithName("mount_volume")
 
 type mountConfig struct {
 	qualifier string
@@ -42,7 +42,12 @@ func (h *MountHandler) Mutate(spec *corev1.PodSpec, ordinal int, cfg interface{}
 	}
 	if should(ordinal, m.qualifier) {
 		for _, v := range m.cfg.Volumes {
-			v.ConfigMap.LocalObjectReference.Name += "-" + strconv.Itoa(ordinal)
+			if v.ConfigMap != nil {
+				v.ConfigMap.LocalObjectReference.Name += "-" + strconv.Itoa(ordinal)
+			}
+			if v.Secret != nil {
+				v.Secret.SecretName += "-" + strconv.Itoa(ordinal)
+			}
 		}
 		spec.Volumes = append(spec.Volumes, m.cfg.Volumes...)
 		for _, source := range m.cfg.Containers {
