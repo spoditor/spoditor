@@ -257,7 +257,7 @@ func Test_parserFunc_Parse(t *testing.T) {
 				annotation.QualifiedName{
 					Qualifier: "1-2",
 					Name:      MountVolume,
-				}: "{\"Volumes\":[{\"name\": \"my-volume\", \"configMap\":{\"name\":\"my-configmap\"}}],\"Containers\":[{\"name\":\"nginx\", \"volumeMounts\":[{\"name\":\"my-volume\",\"mountPath\":\"/etc/configmaps/my-volume\"}]}]}",
+				}: "{\"volumes\":[{\"name\": \"my-volume\", \"configMap\":{\"name\":\"my-configmap\"}}],\"containers\":[{\"name\":\"nginx\", \"volumeMounts\":[{\"name\":\"my-volume\",\"mountPath\":\"/etc/configmaps/my-volume\"}]}]}",
 			}},
 			want: &mountConfig{
 				qualifier: "1-2",

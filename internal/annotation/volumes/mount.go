@@ -22,8 +22,8 @@ type mountConfig struct {
 }
 
 type mountConfigValue struct {
-	Volumes    []corev1.Volume
-	Containers []corev1.Container
+	Volumes    []corev1.Volume    `json:"volumes"`
+	Containers []corev1.Container `json:"containers"`
 }
 
 type parserFunc func(map[annotation.QualifiedName]string) (interface{}, error)
