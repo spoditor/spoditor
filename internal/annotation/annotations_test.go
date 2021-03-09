@@ -75,7 +75,7 @@ func TestPodQualifier(t *testing.T) {
 			want: false,
 		},
 		{
-			name: "common pod qualifier excluded",
+			name: "common pod qualifier excluded from a range",
 			q:    CommonPodQualifier,
 			args: args{
 				ordinal: 0,
@@ -84,11 +84,20 @@ func TestPodQualifier(t *testing.T) {
 			want: false,
 		},
 		{
-			name: "applicable",
+			name: "common pod qualifier included in a range",
 			q:    CommonPodQualifier,
 			args: args{
 				ordinal: 0,
-				q:       "0-1",
+				q:       "00-20",
+			},
+			want: true,
+		},
+		{
+			name: "common pod qualifier exact single pod",
+			q:    CommonPodQualifier,
+			args: args{
+				ordinal: 0,
+				q:       "000",
 			},
 			want: true,
 		},

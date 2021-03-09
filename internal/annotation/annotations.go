@@ -65,11 +65,15 @@ var CommonPodQualifier PodQualifier = func(ordinal int, q string) bool {
 	if q == "" {
 		return true
 	}
-	if b, err := regexp.MatchString("\\d-\\d", q); err != nil || !b {
-		return false
+	if b, err := regexp.MatchString("^\\d+-\\d+$", q); err == nil && b {
+		bounds := strings.Split(q, "-")
+		min, _ := strconv.Atoi(bounds[0])
+		max, _ := strconv.Atoi(bounds[1])
+		return ordinal >= min && ordinal <= max
 	}
-	bounds := strings.Split(q, "-")
-	min, _ := strconv.Atoi(bounds[0])
-	max, _ := strconv.Atoi(bounds[1])
-	return ordinal >= min && ordinal <= max
+	if b, err := regexp.MatchString("^\\d+$", q); err == nil && b {
+		i, _ := strconv.Atoi(q)
+		return ordinal == i
+	}
+	return false
 }
