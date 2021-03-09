@@ -101,6 +101,24 @@ func TestPodQualifier(t *testing.T) {
 			},
 			want: true,
 		},
+		{
+			name: "common pod qualifier lower bound only",
+			q:    CommonPodQualifier,
+			args: args{
+				ordinal: 1,
+				q:       "0-",
+			},
+			want: true,
+		},
+		{
+			name: "common pod qualifier upper bound only",
+			q:    CommonPodQualifier,
+			args: args{
+				ordinal: 1,
+				q:       "-2",
+			},
+			want: true,
+		},
 	}
 	for _, test := range tests {
 		t.Run(test.name, func(t *testing.T) {
