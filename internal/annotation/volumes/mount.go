@@ -32,6 +32,8 @@ func (p parserFunc) Parse(annotations map[annotation.QualifiedName]string) (inte
 	return p(annotations)
 }
 
+var _ annotation.Parser = parserFunc(nil)
+
 type MountHandler struct {
 }
 
@@ -77,6 +79,8 @@ func (h *MountHandler) Mutate(spec *corev1.PodSpec, ordinal int, cfg interface{}
 func (h *MountHandler) GetParser() annotation.Parser {
 	return parser
 }
+
+var _ annotation.Handler = &MountHandler{}
 
 var parser parserFunc = func(annotations map[annotation.QualifiedName]string) (interface{}, error) {
 	for k, v := range annotations {

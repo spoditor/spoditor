@@ -98,7 +98,7 @@ var _ = BeforeSuite(func() {
 	Expect(err).NotTo(HaveOccurred())
 
 	podArgumentor := PodArgumentor{
-		SSPodId:   &LabelSSPodIdentifier{},
+		SSPodId:   LabelSSPodIdentifier,
 		Collector: annotation.Collector,
 	}
 	podArgumentor.Register(&volumes.MountHandler{})

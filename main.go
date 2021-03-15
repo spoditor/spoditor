@@ -81,7 +81,7 @@ func main() {
 	// +kubebuilder:scaffold:builder
 
 	podArgumentor := internal.PodArgumentor{
-		SSPodId:   &internal.LabelSSPodIdentifier{},
+		SSPodId:   internal.LabelSSPodIdentifier,
 		Collector: annotation.Collector,
 	}
 	podArgumentor.Register(&volumes.MountHandler{})

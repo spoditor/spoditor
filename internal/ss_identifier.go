@@ -22,9 +22,9 @@ func (f SSPodIdentifierFunc) Extract(accessor v1.ObjectMetaAccessor) (string, in
 	return f(accessor)
 }
 
-type LabelSSPodIdentifier struct{}
+var _ SSPodIdentifier = SSPodIdentifierFunc(nil)
 
-func (d *LabelSSPodIdentifier) Extract(accessor v1.ObjectMetaAccessor) (string, int, error) {
+var LabelSSPodIdentifier SSPodIdentifierFunc = func(accessor v1.ObjectMetaAccessor) (string, int, error) {
 	l, ok := accessor.GetObjectMeta().GetLabels()["statefulset.kubernetes.io/pod-name"]
 	if !ok {
 		podIdentifierLog.Info("statefulset label not found", "label", "statefulset.kubernetes.io/pod-name")

@@ -41,6 +41,8 @@ func (c CollectorFunc) Collect(accessor metav1.ObjectMetaAccessor) map[Qualified
 	return c(accessor)
 }
 
+var _ QualifiedAnnotationCollector = CollectorFunc(nil)
+
 var Collector QualifiedAnnotationCollector = defaultCollector
 
 var defaultCollector CollectorFunc = func(accessor metav1.ObjectMetaAccessor) map[QualifiedName]string {
