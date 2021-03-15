@@ -4,7 +4,7 @@ import (
 	"context"
 	"fmt"
 
-	"github.com/simingweng/ss-argumentor/internal/annotation"
+	"github.com/spoditor/spoditor/internal/annotation"
 	v1 "k8s.io/api/core/v1"
 	"k8s.io/apimachinery/pkg/util/json"
 	ctrl "sigs.k8s.io/controller-runtime"
@@ -18,6 +18,8 @@ import (
 // log is for logging in this package.
 var log = logf.Log.WithName("pod_webhook")
 
+// PodArgumentor receives the admission request from API server when a Pod resource
+// is created or updated
 type PodArgumentor struct {
 	decoder   *admission.Decoder
 	SSPodId   SSPodIdentifier

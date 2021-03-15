@@ -1,13 +1,8 @@
-domain: ssarg.io
+domain: spoditor.io
 layout: go.kubebuilder.io/v3
-projectName: ss-argumentor
-repo: github.com/simingweng/ss-argumentor
+projectName: spoditor
+repo: github.com/spoditor/spoditor
 resources:
-- crdVersion: v1
-  group: argumentor
-  kind: Argumentor
-  version: v1beta1
-  webhookVersion: v1
 version: 3-alpha
 plugins:
   manifests.sdk.operatorframework.io/v2: {}

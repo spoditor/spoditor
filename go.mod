@@ -1,4 +1,4 @@
-module github.com/simingweng/ss-argumentor
+module github.com/spoditor/spoditor
 
 go 1.15
 
