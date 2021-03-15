@@ -14,7 +14,7 @@ const (
 	MountVolume = "mount-volume"
 )
 
-var mountCfgMapLog = logf.Log.WithName("mount_volume")
+var log = logf.Log.WithName("mount_volume")
 
 type mountConfig struct {
 	qualifier string
@@ -36,16 +36,26 @@ type MountHandler struct {
 }
 
 func (h *MountHandler) Mutate(spec *corev1.PodSpec, ordinal int, cfg interface{}) error {
+	ll := log.WithValues("ordinal", ordinal)
 	m, ok := cfg.(*mountConfig)
 	if !ok {
 		return fmt.Errorf("unexpected config type %T", m)
 	}
 	if should(ordinal, m.qualifier) {
+		ll.Info("pod should be applicable")
 		for _, v := range m.cfg.Volumes {
 			if v.ConfigMap != nil {
+				ll.Info("overwrite configmap name",
+					"volume", v.Name,
+					"origin", v.ConfigMap.LocalObjectReference.Name,
+					"new", v.ConfigMap.LocalObjectReference.Name+"-"+strconv.Itoa(ordinal))
 				v.ConfigMap.LocalObjectReference.Name += "-" + strconv.Itoa(ordinal)
 			}
 			if v.Secret != nil {
+				ll.Info("overwrite secret name",
+					"volume", v.Name,
+					"origin", v.Secret.SecretName,
+					"new", v.Secret.SecretName+"-"+strconv.Itoa(ordinal))
 				v.Secret.SecretName += "-" + strconv.Itoa(ordinal)
 			}
 		}
@@ -53,12 +63,13 @@ func (h *MountHandler) Mutate(spec *corev1.PodSpec, ordinal int, cfg interface{}
 		for _, source := range m.cfg.Containers {
 			for i := 0; i < len(spec.Containers); i++ {
 				if source.Name == spec.Containers[i].Name {
+					ll.Info("mount volumes to container", "container", source.Name)
 					spec.Containers[i].VolumeMounts = append(spec.Containers[i].VolumeMounts, source.VolumeMounts...)
 				}
 			}
 		}
 	} else {
-		mountCfgMapLog.Info("qualifier excludes this pod")
+		log.Info("qualifier excludes this pod")
 	}
 	return nil
 }
@@ -69,7 +80,9 @@ func (h *MountHandler) GetParser() annotation.Parser {
 
 var parser parserFunc = func(annotations map[annotation.QualifiedName]string) (interface{}, error) {
 	for k, v := range annotations {
+		ll := log.WithValues("qualifiedName", k, "value", v)
 		if k.Name == MountVolume {
+			ll.Info("parse config for mounting volumes")
 			c := &mountConfigValue{}
 			if err := json.Unmarshal([]byte(v), c); err == nil {
 				return &mountConfig{

@@ -15,8 +15,8 @@ import (
 
 // +kubebuilder:webhook:path=/mutate-v1-pod,mutating=true,failurePolicy=ignore,sideEffects=None,groups="",resources=pods,verbs=create;update,versions=v1,name=mpod.ssarg.io,admissionReviewVersions={v1,v1beta1}
 
-// podWebhookLog is for logging in this package.
-var podWebhookLog = logf.Log.WithName("pod_webhook")
+// log is for logging in this package.
+var log = logf.Log.WithName("pod_webhook")
 
 type PodArgumentor struct {
 	decoder   *admission.Decoder
@@ -32,18 +32,20 @@ func (r *PodArgumentor) Handle(c context.Context, request admission.Request) adm
 		return admission.Allowed(fmt.Sprintf("failed to decode the input pod %v", err))
 	}
 
+	log.Info("start handling pod", "pod", pod)
 	// mutate the fields in pod
-	podWebhookLog.Info("received request for pod", "pod", pod)
-	_, ordinal, err := r.SSPodId.Extract(pod)
+	ss, ordinal, err := r.SSPodId.Extract(pod)
 	if err != nil {
 		return admission.Allowed(fmt.Sprintf("ignore none-statefulset pod %v", err))
 	}
+	log.Info("found statefulset pod", "statefulset name", ss, "ordinal", ordinal)
 
 	for _, h := range r.handlers {
 		c, err := h.GetParser().Parse(r.Collector.Collect(pod))
 		if err != nil || c == nil {
 			return admission.Allowed(fmt.Sprintf("can't parse ssarg annotation %v", err))
 		}
+		log.Info("parsed argumentation configuration", "configuration", c)
 		err = h.Mutate(&pod.Spec, ordinal, c)
 		if err != nil {
 			return admission.Allowed(fmt.Sprintf("failed to mutate the pod %v", err))
@@ -63,7 +65,7 @@ func (r *PodArgumentor) InjectDecoder(decoder *admission.Decoder) error {
 }
 
 func (r *PodArgumentor) SetupWebhookWithManager(mgr ctrl.Manager) {
-	podWebhookLog.Info("registering argumentor webhook")
+	log.Info("registering argumentor webhook")
 	mgr.GetWebhookServer().
 		Register("/mutate-v1-pod", &webhook.Admission{
 			Handler: r,
