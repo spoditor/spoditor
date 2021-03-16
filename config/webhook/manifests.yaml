@@ -15,7 +15,7 @@ webhooks:
       namespace: system
       path: /mutate-v1-pod
   failurePolicy: Ignore
-  name: mpod.ssarg.io
+  name: mpod.spoditor.io
   rules:
   - apiGroups:
     - ""
