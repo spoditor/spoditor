@@ -22,8 +22,8 @@ func TestCollectorFunc_Collect(t *testing.T) {
 			c:    Collector,
 			args: args{accessor: &v1.ObjectMeta{
 				Annotations: map[string]string{
-					"ssarg.io/mount-volume":     "dummy value",
-					"ssarg.io/mount-volume_1-2": "dummy value",
+					"spoditor.io/mount-volume":     "dummy value",
+					"spoditor.io/mount-volume_1-2": "dummy value",
 				},
 			}},
 			want: map[QualifiedName]string{

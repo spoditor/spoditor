@@ -11,7 +11,7 @@ import (
 )
 
 const (
-	Prefix    = "ssarg.io/"
+	Prefix    = "spoditor.io/"
 	Separator = "_"
 )
 

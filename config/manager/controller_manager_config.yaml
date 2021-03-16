@@ -8,4 +8,4 @@ webhook:
   port: 9443
 leaderElection:
   leaderElect: true
-  resourceName: 12517100.ssarg.io
+  resourceName: 12517100.spoditor.io
