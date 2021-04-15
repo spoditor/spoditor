@@ -1,12 +1,14 @@
 name: Publish docker image to Github packages
+
 on:
-  release:
-    types:
-      - published
+  push:
+    tags:
+      - 'v*.*.*'
+
 jobs:
-  push_to_packages:
+  push-to-packages:
     name: Push docker image
-    runs-on: macos-latest
+    runs-on: ubuntu-latest
     steps:
       - name: Set up QEMU
         uses: docker/setup-qemu-action@v1
@@ -18,9 +20,33 @@ jobs:
           registry: ghcr.io
           username: ${{ github.repository_owner }}
           password: ${{ secrets.GITHUB_TOKEN }}
+      - name: Get tag
+        id: tag
+        uses: dawidd6/action-get-tag@v1
       - name: Build and push
         uses: docker/build-push-action@v2
         with:
           push: true
           tags: |
-            ghcr.io/spoditor/spoditor:${{ GITHUB_REF }}
+            ghcr.io/spoditor/spoditor:${{ steps.tag.outputs.tag }}
+
+  create-release:
+    name: Create release and generate bundle yaml
+    runs-on: macos-latest
+    steps:
+      - uses: actions/checkout@v2
+      - name: Set up Go
+        uses: actions/setup-go@v2
+        with:
+          go-version: 1.15
+      - name: Get tag
+        id: tag
+        uses: dawidd6/action-get-tag@v1
+      - name: Generate bundle YAML
+        run: IMG="ghcr.io/spoditor/spoditor:${{ steps.tag.outputs.tag }}" make build-yaml
+      - name: Release
+        uses: softprops/action-gh-release@v1
+        with:
+          file: bundle.yaml
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
