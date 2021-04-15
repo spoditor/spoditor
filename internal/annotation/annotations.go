@@ -26,6 +26,14 @@ type Parser interface {
 	Parse(annotations map[QualifiedName]string) (interface{}, error)
 }
 
+type ParserFunc func(map[QualifiedName]string) (interface{}, error)
+
+func (p ParserFunc) Parse(annotations map[QualifiedName]string) (interface{}, error) {
+	return p(annotations)
+}
+
+var _ Parser = ParserFunc(nil)
+
 type QualifiedName struct {
 	Qualifier string
 	Name      string
