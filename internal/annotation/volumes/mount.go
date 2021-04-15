@@ -26,14 +26,6 @@ type mountConfigValue struct {
 	Containers []corev1.Container `json:"containers"`
 }
 
-type parserFunc func(map[annotation.QualifiedName]string) (interface{}, error)
-
-func (p parserFunc) Parse(annotations map[annotation.QualifiedName]string) (interface{}, error) {
-	return p(annotations)
-}
-
-var _ annotation.Parser = parserFunc(nil)
-
 type MountHandler struct {
 }
 
@@ -82,7 +74,7 @@ func (h *MountHandler) GetParser() annotation.Parser {
 
 var _ annotation.Handler = &MountHandler{}
 
-var parser parserFunc = func(annotations map[annotation.QualifiedName]string) (interface{}, error) {
+var parser annotation.ParserFunc = func(annotations map[annotation.QualifiedName]string) (interface{}, error) {
 	for k, v := range annotations {
 		ll := log.WithValues("qualifiedName", k, "value", v)
 		if k.Name == MountVolume {
