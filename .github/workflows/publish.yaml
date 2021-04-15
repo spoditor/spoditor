@@ -47,6 +47,6 @@ jobs:
       - name: Release
         uses: softprops/action-gh-release@v1
         with:
-          file: bundle.yaml
+          files: bundle.yaml
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
