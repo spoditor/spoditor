@@ -222,7 +222,7 @@ func Test_parserFunc_Parse(t *testing.T) {
 	}
 	tests := []struct {
 		name    string
-		p       parserFunc
+		p       annotation.ParserFunc
 		args    args
 		want    interface{}
 		wantErr bool
