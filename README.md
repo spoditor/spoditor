@@ -150,3 +150,6 @@ type Parser interface {
 	Parse(annotations map[QualifiedName]string) (interface{}, error)
 }
 ```
+
+## Community
+Please join [Spoditor](https://join.slack.com/t/spoditor/shared_invite/zt-p6anaij6-07DsggYHlnEktixBWIURMA) on Slack
