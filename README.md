@@ -1,5 +1,6 @@
-# Spoditor
+![sts.png](sts.png)
 
+# Spoditor
 Spoditor, (StatefulSet Pod Editor), is a Kubernetes dynamical admission controller to differentiate each individual Pod belonging to a StatefulSet.
 
 [StatefulSet](https://kubernetes.io/docs/concepts/workloads/controllers/statefulset/) is designated to manage stateful workload on Kubernetes. However, developer often has to face the limit that all the Pods in a StatefulSet have to share the same PodSpec. A lot of stateful workload cluster actually requires slightly different specification, such as configuration, storage, etc, on one or more Pods.
