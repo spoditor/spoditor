@@ -22,6 +22,7 @@ import (
 
 	"github.com/spoditor/spoditor/internal"
 	"github.com/spoditor/spoditor/internal/annotation"
+	"github.com/spoditor/spoditor/internal/annotation/env"
 	"github.com/spoditor/spoditor/internal/annotation/volumes"
 
 	// Import all Kubernetes client auth plugins (e.g. Azure, GCP, OIDC, etc.)
@@ -85,6 +86,7 @@ func main() {
 		Collector: annotation.Collector,
 	}
 	podArgumentor.Register(&volumes.MountHandler{})
+	podArgumentor.Register(&env.MountHandler{})
 	podArgumentor.SetupWebhookWithManager(mgr)
 
 	if err := mgr.AddHealthzCheck("health", healthz.Ping); err != nil {
