@@ -42,18 +42,22 @@ func (r *PodArgumentor) Handle(c context.Context, request admission.Request) adm
 	}
 	log.Info("found statefulset pod", "statefulset name", ss, "ordinal", ordinal)
 
+	parsed := false
 	for _, h := range r.handlers {
 		c, err := h.GetParser().Parse(r.Collector.Collect(pod))
 		if err != nil || c == nil {
-			return admission.Allowed(fmt.Sprintf("can't parse ssarg annotation %v", err))
+			continue // Try the next Handler
 		}
+		parsed = true
 		log.Info("parsed argumentation configuration", "configuration", c)
 		err = h.Mutate(&pod.Spec, ordinal, c)
 		if err != nil {
 			return admission.Allowed(fmt.Sprintf("failed to mutate the pod %v", err))
 		}
 	}
-
+	if !parsed {
+		return admission.Allowed(fmt.Sprintf("can't parse ssarg annotation %v", err))
+	}
 	marshaledPod, err := json.Marshal(pod)
 	if err != nil {
 		return admission.Allowed(fmt.Sprintf("failed to marshal the mutated pod %v", err))
